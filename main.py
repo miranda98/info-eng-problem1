@@ -34,7 +34,7 @@ def mainfunc(img):
     entropy = calcentropy(pmf)
     return entropy
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     img_gs = Image.open('../../Downloads/ISAE_Logo_SEIS_gs.png', 'r')
     img_gs_noisy = Image.open('../../Downloads/ISAE_Logo_SEIS_gs_noisy.png', 'r')
     img_clr = Image.open('../../Downloads/ISAE_Logo_SEIS_clr.png', 'r')
