@@ -43,7 +43,6 @@ def calc_joint_entropy(img1, img2):
     joint_entropy = -sum(probability * log2(probability) for probability in joint_probability.values())
 
     # Print the joint entropy
-    print(f'Joint Entropy: {joint_entropy} bits')
     return joint_entropy
 
 def mutual_info(h_xy, h_x, h_y):
@@ -106,8 +105,6 @@ if __name__ == "__main__":
 
     gs_joint_entropy = calc_joint_entropy(img_gs, img_gs_noisy)
     clr_joint_entropy = calc_joint_entropy(img_clr, img_clr_noisy)
-
-    print(f"img_ent: {gs_ent}, img2_ent: {gs_noisy_ent}, joint_ent: {gs_joint_entropy}")
 
     gs_mi = mutual_info(gs_joint_entropy, gs_ent, gs_noisy_ent)
     clr_mi = mutual_info(clr_joint_entropy, clr_ent, clr_noisy_ent)
