@@ -27,10 +27,10 @@ def calc_entropy(img):
 
 def calc_joint_entropy(img1, img2):
     set_a, dim_a = parse_img(img1)
-    set_b, dim_b = parse_img(img1)
+    set_b, dim_b = parse_img(img2)
     
     # Combine the sets into pairs
-    pairs = list(zip(set_a, set_b))
+    pairs = list(zip(set_a[:, 0], set_b[:, 0]))
 
     # Count the occurrences of each pair
     pair_counts = Counter(pairs)
@@ -44,6 +44,7 @@ def calc_joint_entropy(img1, img2):
 
     # Print the joint entropy
     print(f'Joint Entropy: {joint_entropy} bits')
+    return joint_entropy
 
 def mutual_info(h_xy, h_x, h_y):
     """
@@ -101,10 +102,12 @@ if __name__ == "__main__":
     gs_ent = calc_entropy(img_gs)
     gs_noisy_ent = calc_entropy(img_gs_noisy)
     clr_ent = calc_entropy(img_clr)
-    clr_img_ent = calc_entropy(img_clr_noisy)
+    clr_noisy_ent = calc_entropy(img_clr_noisy)
 
     gs_joint_entropy = calc_joint_entropy(img_gs, img_gs_noisy)
     clr_joint_entropy = calc_joint_entropy(img_clr, img_clr_noisy)
+
+    print(f"img_ent: {gs_ent}, img2_ent: {gs_noisy_ent}, joint_ent: {gs_joint_entropy}")
 
     gs_mi = mutual_info(gs_joint_entropy, gs_ent, gs_noisy_ent)
     clr_mi = mutual_info(clr_joint_entropy, clr_ent, clr_noisy_ent)
