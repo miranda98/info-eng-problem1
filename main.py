@@ -10,6 +10,7 @@ def parse_img(img):
     dim = np.shape(pixels)[-1]
     return pixels.astype(int), dim
 
+
 def calc_pmf(arr, dimension):
     val, cnt = np.unique(arr, return_counts=True, axis=0)
     pmf = cnt / len(arr)
@@ -27,7 +28,7 @@ def calc_entropy(img):
 def calc_joint_entropy(img1, img2):
     set_a, dim_a = parse_img(img1)
     set_b, dim_b = parse_img(img1)
-
+    
     # Combine the sets into pairs
     pairs = list(zip(set_a, set_b))
 
