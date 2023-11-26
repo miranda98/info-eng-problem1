@@ -115,7 +115,7 @@ if __name__ == "__main__":
     gs_cr = max_compression_ratio("gray-scale", gs_ent)
     gs_noisy_cr = max_compression_ratio("gray-scale", gs_noisy_ent)
     clr_cr = max_compression_ratio("colour", clr_ent)
-    gs_noisy_cr = max_compression_ratio("colour", clr_noisy_ent)
+    clr_noisy_cr = max_compression_ratio("colour", clr_noisy_ent)
 
     print("Entropy GS: ", gs_ent)
     print("Entropy GS noisy: ", gs_noisy_ent)
@@ -124,6 +124,11 @@ if __name__ == "__main__":
 
     print(f"Joint entropy for grey-scale images: {gs_joint_entropy}")
     print(f"Joint entropy for colour images {clr_joint_entropy}")
+
+    print(f"Maximum compression ratio for grey-scale images: {gs_cr}")
+    print(f"Maximum compression ratio for grey-scale, noisy images: {gs_noisy_cr}")
+    print(f"Maximum compression ratio for colour images: {clr_cr}")
+    print(f"Maximum compression ratio for colour, noisy images: {clr_noisy_cr}")
 
     print(f"Max bit rate for grey-scale images: {gs_max_bit_rate}")
     print(f"Max bit rate for colour images: {clr_max_bit_rate}")
