@@ -3,31 +3,27 @@ from PIL import Image
 from math import log2
 from collections import Counter
 
-def parseimg(img):
+def parse_img(img):
     pixels = np.array(img.getdata())
     if len(np.shape(pixels)) == 1:
         pixels = pixels[:, None]
     dim = np.shape(pixels)[-1]
-    return pixels, dim
+    return pixels.astype(int), dim
 
-def calcpmf(arr, dimension):
+
+def calc_pmf(arr, dimension):
     val, cnt = np.unique(arr, return_counts=True, axis=0)
     pmf = cnt / len(arr)
     myarr = np.hstack((val.reshape(-1,dimension),pmf.reshape(-1,1)))
     return myarr
 
-def calcentropy(input):
+def calc_entropy(img):
+    pix, dim = parse_img(img)
+    pmf = calc_pmf(pix, dim)
     entropy = 0
-    for i in input:
+    for i in pmf:
         entropy -= i[-1]*log2(i[-1])
     return entropy
-
-def entropy_from_img(img):
-    pix, dim = parseimg(img)
-    pmf = calcpmf(pix, dim)
-    entropy = calcentropy(pmf)
-    return entropy
-
 
 def calc_joint_entropy(set_a, set_b):
     # Combine the sets into pairs
@@ -46,8 +42,7 @@ def calc_joint_entropy(set_a, set_b):
     # Print the joint entropy
     print(f'Joint Entropy: {joint_entropy} bits')
 
-
-def max_bit_rate(h_xy, h_x, h_y):
+def mutual_info(h_xy, h_x, h_y):
     """
     Calculate mutual information I(X;Y)
 
@@ -59,7 +54,37 @@ def max_bit_rate(h_xy, h_x, h_y):
     Returns:
     - Mutual information I(X;Y)
     """
-    mi = h_x + h_y - h_xy
+    return h_x + h_y - h_xy
+
+def max_compression_ratio(img_type, entropy):
+    """
+    Calculate maximum compression ratio
+
+    Parameters:
+    - mi: Mutual information I(X;Y)
+
+    Returns:
+    - Max compression ratio
+    """
+    size = 0
+    if img_type == "colour":
+        size = 3*8
+
+    if img_type == "gray-scale":
+        size = 8
+
+    return entropy/size
+
+def max_bit_rate(mi):
+    """
+    Calculate maximum bit rate
+
+    Parameters:
+    - mi: Mutual information I(X;Y)
+
+    Returns:
+    - Max bit rate
+    """
     B = 500     # Hz
     bit_rate = B*mi
     return bit_rate
@@ -71,21 +96,29 @@ if __name__ == "__main__":
     img_clr = Image.open('Images/ISAE_Logo_SEIS_clr.png', 'r')
     img_clr_noisy = Image.open('Images/ISAE_Logo_SEIS_clr_noisy.png', 'r')
 
-    img_gs_parsed = parseimg(img_gs)
-    img_gs_noisy_parsed = parseimg(img_gs_noisy)
-    img_clr_parsed = parseimg(img_clr)
-    img_clr_parsed = parseimg(img_clr_noisy)
+    gs_parsed, _ = parse_img(img_gs)
+    gs_noisy_parsed, _ = parse_img(img_gs_noisy)
+    clr_parsed, _ = parse_img(img_clr)
+    clr_noisy_parsed, _ = parse_img(img_clr_noisy)
 
-    gs_ent = entropy_from_img(img_gs)
-    gs_noisy_ent = entropy_from_img(img_gs)
-    clr_ent = entropy_from_img(img_gs)
-    clr_img_ent = entropy_from_img(img_gs)
+    gs_ent = calc_entropy(img_gs)
+    gs_noisy_ent = calc_entropy(img_gs_noisy)
+    clr_ent = calc_entropy(img_clr)
+    clr_img_ent = calc_entropy(img_clr_noisy)
 
-    gs_joint_entropy = calc_joint_entropy(img_gs_parsed[:, 0], img_gs_noisy_parsed[:, 0])
-    clr_joint_entropy = calc_joint_entropy(clr_gs_parsed[:, 0], clr_gs_noisy_parsed[:, 0])
+    gs_joint_entropy = calc_joint_entropy(gs_parsed[:, 0], gs_noisy_parsed[:, 0])
+    clr_joint_entropy = calc_joint_entropy(clr_parsed[:, 0], clr_noisy_parsed[:, 0])
 
-    gs_max_bit_rate = max_bit_rate(gs_joint_entropy, gs_ent, gs_noisy_ent)
-    clr_max_bit_rate = max_bit_rate(clr_joint_entropy, clr_ent, clr_noisy_ent)
+    gs_mi = mutual_info(gs_joint_entropy, gs_ent, gs_noisy_ent)
+    clr_mi = mutual_info(clr_joint_entropy, clr_ent, clr_noisy_ent)
+
+    gs_max_bit_rate = max_bit_rate(gs_mi)
+    clr_max_bit_rate = max_bit_rate(clr_mi)
+
+    gs_cr = max_compression_ratio("gray-scale", gs_ent)
+    gs_noisy_cr = max_compression_ratio("gray-scale", gs_noisy_ent)
+    clr_cr = max_compression_ratio("colour", clr_ent)
+    gs_noisy_cr = max_compression_ratio("colour", clr_noisy_ent)
 
     print("Entropy GS: ", gs_ent)
     print("Entropy GS noisy: ", gs_noisy_ent)
